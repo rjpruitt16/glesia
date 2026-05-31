@@ -1,5 +1,5 @@
 name = "glesia"
-version = "0.1.0"
+version = "1.0.0"
 description = "Safe-ish Gleam bindings for Erlang Mnesia"
 licences = ["MIT"]
 repository = { type = "github", user = "rjpruitt16", repo = "glesia" }
