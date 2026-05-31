@@ -10,6 +10,7 @@
     dirty_write/1,
     dirty_read/2,
     dirty_delete/2,
+    insert_new/3,
     transaction/1
 ]).
 
@@ -84,6 +85,21 @@ dirty_delete(Table, Key) ->
     catch
         exit:Reason -> {simple_error, Reason};
         error:Reason -> {simple_error, Reason}
+    end.
+
+insert_new(Table, Key, Record) ->
+    Fun = fun() ->
+        case mnesia:read(Table, Key, write) of
+            [] ->
+                ok = mnesia:write(Record),
+                insert_new_inserted;
+            _ ->
+                insert_new_exists
+        end
+    end,
+    case mnesia:transaction(Fun) of
+        {atomic, Result} -> Result;
+        {aborted, Reason} -> {insert_new_error, Reason}
     end.
 
 transaction(Fun) ->

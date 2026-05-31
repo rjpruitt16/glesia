@@ -54,6 +54,12 @@ pub type ReadResult {
   ReadError(reason: Dynamic)
 }
 
+pub type InsertNewResult {
+  InsertNewInserted
+  InsertNewExists
+  InsertNewError(reason: Dynamic)
+}
+
 pub type TransactionResult {
   TransactionOk(value: Dynamic)
   TransactionAbort(reason: Dynamic)
@@ -90,6 +96,9 @@ fn dirty_read_ffi(table: Atom, key: Dynamic) -> ReadResult
 
 @external(erlang, "glesia_ffi", "dirty_delete")
 fn dirty_delete_ffi(table: Atom, key: Dynamic) -> SimpleResult
+
+@external(erlang, "glesia_ffi", "insert_new")
+fn insert_new_ffi(table: Atom, key: Dynamic, record: Dynamic) -> InsertNewResult
 
 @external(erlang, "glesia_ffi", "transaction")
 fn transaction_ffi(fun: fn() -> value) -> TransactionResult
@@ -200,6 +209,23 @@ pub fn dirty_delete(table: Atom, key: Dynamic) -> Result(Nil, MnesiaError) {
   case dirty_delete_ffi(table, key) {
     SimpleOk -> Ok(Nil)
     SimpleError(reason) -> Error(classify(reason))
+  }
+}
+
+/// Atomically write a record only when no record exists for the given key.
+///
+/// This uses a transactional Mnesia read with a write lock, then writes the
+/// record inside the same transaction. It returns `Ok(True)` when inserted and
+/// `Ok(False)` when the key already exists.
+pub fn insert_new(
+  table: Atom,
+  key: Dynamic,
+  record: Dynamic,
+) -> Result(Bool, MnesiaError) {
+  case insert_new_ffi(table, key, record) {
+    InsertNewInserted -> Ok(True)
+    InsertNewExists -> Ok(False)
+    InsertNewError(reason) -> Error(classify(reason))
   }
 }
 
