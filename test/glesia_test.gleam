@@ -10,7 +10,7 @@ pub fn main() -> Nil {
 }
 
 pub fn dirty_write_and_read_test() {
-  let table = atom.create_from_string("glesia_test_user")
+  let table = atom.create("glesia_test_user")
   let id = dynamic.from(1)
   let record = dynamic.from(#(table, 1, "Rahmi"))
 
@@ -21,8 +21,8 @@ pub fn dirty_write_and_read_test() {
   let assert Ok(_) = glesia.start()
   case
     glesia.create_ram_table(table, [
-      atom.create_from_string("id"),
-      atom.create_from_string("name"),
+      atom.create("id"),
+      atom.create("name"),
     ])
   {
     Ok(_) -> Nil

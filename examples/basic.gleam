@@ -6,14 +6,14 @@ import gleam/list
 import glesia
 
 pub fn main() -> Nil {
-  let users = atom.create_from_string("users")
+  let users = atom.create("users")
 
   let _ = glesia.create_local_schema()
   let assert Ok(_) = glesia.start()
   let _ =
     glesia.create_ram_table(users, [
-      atom.create_from_string("id"),
-      atom.create_from_string("name"),
+      atom.create("id"),
+      atom.create("name"),
     ])
 
   let assert Ok(_) = glesia.dirty_write(dynamic.from(#(users, 1, "Ada")))
